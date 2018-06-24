@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pong Game</title>
+</head>
+<body>
+<!-- https://isaacsukin.com/news/2015/01/detailed-explanation-javascript-game-loops-and-timing -->
+<div id="gameBoard" name="gameBoard">
+<img id="leftBat" name="rightBat" src="left_bat.png" style="position: absolute; top: 1px; left: 1px;">
+<img id="rightBat" name="rightBat" src="right_bat.png"  style="position: absolute; top: 1px; left: 1px;">
+<img id="ball" name="ball" src="ball.png" style="position: absolute; top: 1px; left: 1px;">
+</div>
+<script language="JavaScript">
+    // game board
+    var gameWidth = 800;
+    var gameHeight = 600;
+
+    // ball
+    var ball = document.getElementById("ball");
+    var ballX = gameWidth / 2;
+    var ballY = gameHeight / 2;
+    var ballMoveX = 5;
+    var ballMoveY = 0;
+
+    // left player
+    var leftBat = document.getElementById("leftBat");
+    var leftUp = false;
+    var leftDown = false;
+    var leftX = 10;
+    var leftY = gameHeight / 2;
+
+    // right player
+    var rightBat = document.getElementById("rightBat");
+    var rightUp = false;
+    var rightDown = false;
+    var rightX = gameWidth;
+    var rightY = gameHeight / 2;
+
+    // players
+    var playerSpeed = 5;
+
+    // timing
+    var lastFrameTimeMs = 0;
+    var maxFPS = 60;
+    var delta = 0;
+    var timestep = 1000 / 60;
+
+    function onKeyDown(event) {
+        // console.log("keydown");
+        // if (event.key == "w") {console.log("left up"); leftUp = true;}
+        // else if (event.key  == "s") {console.log("left down"); leftDown = true;}
+        // else if (event.key == "ArrowUp") {console.log("right up"); rightUp = true;}
+        // else if (event.key == "ArrowDown") {console.log("right down"); rightDown = true;}
+        if (event.key == "w") {leftUp = true;}
+        else if (event.key  == "s") {leftDown = true;}
+        else if (event.key == "ArrowUp") {rightUp = true;}
+        else if (event.key == "ArrowDown") {rightDown = true;}
+    }
+
+
+    function update(delta) {
+        // calculate the next position
+        if (leftUp) leftY -= (playerSpeed * delta);
+        if (leftDown) leftY += (playerSpeed * delta);
+        if (rightUp) rightY -= (playerSpeed * delta);
+        if (rightDown) rightY += (playerSpeed * delta);
+        ballX += ballMoveX;
+        ballY += ballMoveY;
+
+        // enforce boundries
+        if (leftY < 0) leftY = 0
+        else if (leftY > gameHeight) leftY = gameHeight;
+
+        if (rightY < 0) rightY = 0
+        else if (rightY > gameHeight) rightY = gameHeight;
+
+        if (ballY < 0) ballY = 0
+        else if (ballY > gameHeight) ballY = gameHeight;
+        if (ballX < 0) ballX = 0
+        else if (ballX > gameWidth) ballX = gameWidth;
+
+        // reset the keypresses
+        leftUp = false;
+        leftDown = false;
+        rightUp = false;
+        rightDown = false;
+    }
+
+    function draw() {
+        leftBat.style.top = leftY + 'px';
+        leftBat.style.left = leftX + 'px';
+        rightBat.style.top = rightY + 'px';
+        rightBat.style.left = rightX + 'px';
+        ball.style.top = ballY + 'px';
+        ball.style.left = ballX + 'px';
+    }
+
+    function mainLoop(timestamp) {
+        // Track the accumulated time that hasn't been simulated yet
+        delta += timestamp - lastFrameTimeMs; // note += here
+        lastFrameTimeMs = timestamp;
+
+        // Simulate the total elapsed time in fixed-size chunks
+        while (delta >= timestep) {
+            update(timestep);
+            delta -= timestep;
+        }
+
+        draw();
+        requestAnimationFrame(mainLoop);
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    requestAnimationFrame(mainLoop);
+</script>
+</body>
+</html>
